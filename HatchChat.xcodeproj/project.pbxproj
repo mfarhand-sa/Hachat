@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CDC704302DA22F7E0054A756 /* FittedSheets in Frameworks */ = {isa = PBXBuildFile; productRef = CDC7042F2DA22F7E0054A756 /* FittedSheets */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		CDC703D82D9FBA1A0054A756 /* HatchChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HatchChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CDC704302DA22F7E0054A756 /* FittedSheets in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = HatchChat;
 			packageProductDependencies = (
+				CDC7042F2DA22F7E0054A756 /* FittedSheets */,
 			);
 			productName = HatchChat;
 			productReference = CDC703D82D9FBA1A0054A756 /* HatchChat.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = CDC703CF2D9FBA1A0054A756;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CDC7042E2DA22F7E0054A756 /* XCRemoteSwiftPackageReference "FittedSheets" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CDC703D92D9FBA1A0054A756 /* Products */;
 			projectDirPath = "";
@@ -335,6 +344,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CDC7042E2DA22F7E0054A756 /* XCRemoteSwiftPackageReference "FittedSheets" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gordontucker/FittedSheets.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CDC7042F2DA22F7E0054A756 /* FittedSheets */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CDC7042E2DA22F7E0054A756 /* XCRemoteSwiftPackageReference "FittedSheets" */;
+			productName = FittedSheets;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CDC703D02D9FBA1A0054A756 /* Project object */;
 }

@@ -1,0 +1,15 @@
+{
+  "originHash" : "bca0ffe782054091b30bf4c757fdb8ff1fb865b08b3098070be08440a47adf65",
+  "pins" : [
+    {
+      "identity" : "fittedsheets",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gordontucker/FittedSheets.git",
+      "state" : {
+        "revision" : "ba34781367fb7c947e2a19334318cf440c92968c",
+        "version" : "2.7.1"
+      }
+    }
+  ],
+  "version" : 3
+}
