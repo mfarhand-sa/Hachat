@@ -2,8 +2,12 @@
 
 A UIKit-based messaging UI featuring dynamic interactions, smooth animations, and a polished experience—reminiscent of Slack or iMessage.
 
-### 📹 Demo
+### 📹 Hatch Design
 ![Demo](Assets/AssignmentVideReference.gif)
+
+### 📹 My Implementation
+![Demo](Assets/MoLowKeyImplementation.gif)
+
 
 ---
 
