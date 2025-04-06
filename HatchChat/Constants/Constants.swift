@@ -1,8 +1,8 @@
 //
 //  Constants.swift
-//  EnsembleCast
+//  HatchChat
 //
-//  Created by Mohi Farhand on 2025-02-24.
+//  Created by Mohi Farhand on 2025-04-05.
 //
 
 import Foundation
@@ -10,16 +10,7 @@ import UIKit
 
 // MARK: - Constants
 
-
-
-
 struct Constants {
-    
-    struct AppConfig {
-        static let apiKey = "7843fb0c"
-        static let baseURL = "https://www.omdbapi.com/"
-        static let pageSize = 10
-    }
     
     
     struct Padding {
@@ -31,13 +22,7 @@ struct Constants {
 
 
     }
-    
-    struct Dimensions {
-        static var dynamicPadding: CGFloat {
-            return UIScreen.main.bounds.size.width - 48.0
-        }
-    }
-    
+        
     struct CornerRaduce {
         static var cardRaduce: CGFloat {
             return 16.0
