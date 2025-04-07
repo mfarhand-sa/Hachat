@@ -11,11 +11,28 @@ import FittedSheets
 
 class HCChatViewController: UIViewController {
 
-    // MARK: - Subviews
+    // MARK: - Constraints / State
+    private var mainSheetHeightConstraint: NSLayoutConstraint!
+    private var mainSheetBottomConstraint: NSLayoutConstraint!
+    private var isImageSheetPresent = false
+    private let keyboardListener = HCKeyboardListener()
+    private var initialBottomConstant: CGFloat = 0
+    
 
-    private let dimmingView = UIView()
-    private let mainSheetView = UIView()
-    private let chipsCollectionView: UICollectionView = {
+
+    private var mainSheetInitialHeight: CGFloat { view.bounds.height * 0.25 }
+    private var mainSheetExpandedHeight: CGFloat { view.bounds.height * 0.9 }
+
+    // MARK: - Subviews as Lazy Properties
+    private lazy var dimmingView: UIView = {
+        return UIView()
+    }()
+
+    private lazy var mainSheetView: UIView = {
+        return UIView()
+    }()
+
+    private lazy var chipsCollectionView: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.scrollDirection = .horizontal
         flowLayout.minimumLineSpacing = 8
@@ -23,43 +40,54 @@ class HCChatViewController: UIViewController {
         flowLayout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         flowLayout.estimatedItemSize = CGSize(width: 120, height: 60)
         flowLayout.itemSize = UICollectionViewFlowLayout.automaticSize
+
         let cv = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
         cv.backgroundColor = .clear
         cv.showsHorizontalScrollIndicator = false
         return cv
     }()
 
-    private let chatTextView = HCTextView(
-        frame: .zero,
-        fixedHeight: 100,
-        placeholder: "Start typing..."
-    )
+    private lazy var chatTextView: HCTextView = {
+        let tv = HCTextView(frame: .zero, fixedHeight: 100, placeholder: "Start typing...")
+        return tv
+    }()
 
-    private let previewContainer = UIView()
-    private let previewImageView = UIImageView()
-    private let removePreviewButton = UIButton(type: .system)
-    private let imageButton = UIButton(type: .system)
-    private let sendButton = UIButton(type: .system)
-    private let expandButton = UIButton(type: .system)
+    private lazy var previewContainer: UIView = {
+        return UIView()
+    }()
 
-    // MARK: - Constraints
-    private var mainSheetHeightConstraint: NSLayoutConstraint!
-    private var mainSheetBottomConstraint: NSLayoutConstraint!
-    private var isImageSheetPresent = false
-    private let keyboardListener = HCKeyboardListener()
-    private var mainSheetInitialHeight: CGFloat {
-        return view.bounds.height * 0.25
-    }
-    private var mainSheetExpandedHeight: CGFloat {
-        return view.bounds.height * 0.9
-    }
+    private lazy var previewImageView: UIImageView = {
+        let iv = UIImageView()
+        return iv
+    }()
+
+    private lazy var removePreviewButton: UIButton = {
+        let b = UIButton(type: .system)
+        return b
+    }()
+
+    private lazy var imageButton: UIButton = {
+        let b = UIButton(type: .system)
+        return b
+    }()
+
+    private lazy var sendButton: UIButton = {
+        let b = UIButton(type: .system)
+        return b
+    }()
+
+    private lazy var expandButton: UIButton = {
+        let b = UIButton(type: .system)
+        return b
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .HCBackground
-        self.title = "Hachat"
+        title = "Hachat"
+        keyboardListener.delegate = self
 
-
+        // The same setup calls remain below
         setupDimmingView()
         setupMainSheet()
         setupChipsCollection()
@@ -67,10 +95,19 @@ class HCChatViewController: UIViewController {
         setupPreviewContainer()
         setupButtons()
         setupPanGesture()
-        keyboardListener.delegate = self
+
+        // Keep your existing lines for hooking up the chips
         chipsCollectionView.dataSource = self
         chipsCollectionView.delegate = self
         chipsCollectionView.register(HCChipCell.self, forCellWithReuseIdentifier: "HCChipCell")
+        
+        if #available(iOS 17.0, *) {
+            registerForTraitChanges([UITraitUserInterfaceStyle.self], handler: { (self: Self, previousTraitCollection: UITraitCollection) in
+                
+                self.reloadButtonImages()
+
+            })
+        }
     }
 
     // MARK: - Setup
@@ -118,7 +155,7 @@ class HCChatViewController: UIViewController {
             chipsCollectionView.bottomAnchor.constraint(equalTo: mainSheetView.topAnchor, constant: -20),
             chipsCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             chipsCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            chipsCollectionView.heightAnchor.constraint(equalToConstant: 50),
+            chipsCollectionView.heightAnchor.constraint(equalToConstant: 60),
         ])
     }
 
@@ -172,39 +209,33 @@ class HCChatViewController: UIViewController {
     }
 
     private func setupButtons() {
-        // Expand button (on the right edge of textView)
         expandButton.setImage(UIImage(named: "expand")?.withRenderingMode(.alwaysOriginal), for: .normal)
         expandButton.translatesAutoresizingMaskIntoConstraints = false
         expandButton.addTarget(self, action: #selector(expandButtonTapped), for: .touchUpInside)
-        expandButton.isHidden = true  // hidden until user types
+        expandButton.isHidden = true
         mainSheetView.addSubview(expandButton)
 
-        // Image button
         imageButton.setImage(UIImage(named: "image")?.withRenderingMode(.alwaysOriginal), for: .normal)
         imageButton.translatesAutoresizingMaskIntoConstraints = false
         imageButton.addTarget(self, action: #selector(imageButtonTapped), for: .touchUpInside)
         mainSheetView.addSubview(imageButton)
 
-        // Send button
         sendButton.setImage(UIImage(named: "send")?.withRenderingMode(.alwaysOriginal), for: .normal)
         sendButton.translatesAutoresizingMaskIntoConstraints = false
         sendButton.addTarget(self, action: #selector(sendButtonTapped), for: .touchUpInside)
         mainSheetView.addSubview(sendButton)
 
         NSLayoutConstraint.activate([
-            // Expand button
             expandButton.topAnchor.constraint(equalTo: chatTextView.topAnchor),
             expandButton.leadingAnchor.constraint(equalTo: chatTextView.trailingAnchor, constant: 4),
             expandButton.widthAnchor.constraint(equalToConstant: 32),
             expandButton.heightAnchor.constraint(equalToConstant: 32),
 
-            // Image button
             imageButton.bottomAnchor.constraint(equalTo: mainSheetView.safeAreaLayoutGuide.bottomAnchor, constant: -8),
             imageButton.leadingAnchor.constraint(equalTo: mainSheetView.leadingAnchor, constant: 32),
             imageButton.widthAnchor.constraint(equalToConstant: 35),
             imageButton.heightAnchor.constraint(equalToConstant: 35),
 
-            // Send button
             sendButton.centerYAnchor.constraint(equalTo: imageButton.centerYAnchor),
             sendButton.trailingAnchor.constraint(equalTo: mainSheetView.trailingAnchor, constant: -32),
             sendButton.widthAnchor.constraint(equalToConstant: 35),
@@ -231,7 +262,7 @@ class HCChatViewController: UIViewController {
     }
 
     @objc private func imageButtonTapped() {
-        self.isImageSheetPresent = true
+        isImageSheetPresent = true
         view.endEditing(true)
 
         let tileVC = HCTilePickerViewController()
@@ -258,7 +289,7 @@ class HCChatViewController: UIViewController {
 
         sheetController.didDismiss = { _ in
             self.isImageSheetPresent = false
-           _ = self.chatTextView.becomeFirstResponder()
+            _ = self.chatTextView.becomeFirstResponder()
         }
         sheetController.modalTransitionStyle = .crossDissolve
         present(sheetController, animated: true)
@@ -267,8 +298,7 @@ class HCChatViewController: UIViewController {
     @objc private func expandButtonTapped() {
         let fullVC = HCFullScreenTextViewController()
         fullVC.modalPresentationStyle = .custom
-        fullVC.initialText = self.chatTextView.text
-
+        fullVC.initialText = chatTextView.text
         fullVC.onDone = { [weak self] updatedText in
             guard let self = self else { return }
             self.chatTextView.text = updatedText
@@ -297,8 +327,6 @@ class HCChatViewController: UIViewController {
     }
 
     // MARK: - Pan to dismiss keyboard
-    private var initialBottomConstant: CGFloat = 0
-
     @objc private func handleSheetPan(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: view)
         let velocity = gesture.velocity(in: view).y
@@ -308,7 +336,6 @@ class HCChatViewController: UIViewController {
             initialBottomConstant = mainSheetBottomConstraint.constant
 
         case .changed:
-            // Only handle downward drags if keyboard is up
             guard keyboardListener.isUp, translation.y > 0 else { return }
             let drag = min(translation.y, keyboardListener.height)
             if chatTextView.text.isEmpty {
@@ -322,55 +349,59 @@ class HCChatViewController: UIViewController {
 
         case .ended, .cancelled:
             guard keyboardListener.isUp else { return }
-            let d = pow(velocity, 2) / 5000
-            let finalTranslation = translation.y + (velocity >= 0 ? d : -d)
-            if finalTranslation > keyboardListener.height / 2 {
-                // Dismiss keyboard
+            let friction = pow(velocity, 2) / 5000
+            let finalDist = translation.y + (velocity >= 0 ? friction : -friction)
+            if finalDist > keyboardListener.height / 2 {
                 UIView.animate(withDuration: 0.3) {
-                    self.keyboardListener.keyboardWindow?.transform = CGAffineTransform.identity
+                    self.keyboardListener.keyboardWindow?.transform = .identity
                     self.mainSheetView.transform = .identity
                     self.chipsCollectionView.transform = .identity
                     self.view.endEditing(true)
                     if self.chatTextView.text.isEmpty {
-                         self.chatTextView.placeholderLabel.alpha = 0.4
-                     }
+                        self.chatTextView.placeholderLabel.alpha = 0.4
+                    }
                 }
             } else {
-                // Snap back
                 UIView.animate(withDuration: 0.3) {
-                    self.keyboardListener.keyboardWindow?.transform = CGAffineTransform.identity
+                    self.keyboardListener.keyboardWindow?.transform = .identity
                     self.mainSheetView.transform = .identity
                     self.chipsCollectionView.transform = .identity
                     if self.chatTextView.text.isEmpty {
-                         self.chatTextView.placeholderLabel.alpha = 0.4
-                     }
+                        self.chatTextView.placeholderLabel.alpha = 0.4
+                    }
                 }
             }
         default:
             break
         }
     }
+        
+    private func reloadButtonImages() {
+        expandButton.setImage(UIImage(named: "expand")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        sendButton.setImage(UIImage(named: "send")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        imageButton.setImage(UIImage(named: "image")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        removePreviewButton.setImage(UIImage(named: "remove")?.withRenderingMode(.alwaysOriginal), for: .normal)
+    }
+    
+    
 }
 
 // MARK: - UITextViewDelegate
 extension HCChatViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         expandButton.isHidden = textView.text.isEmpty
-
         if let fixedTV = textView as? HCTextView {
             fixedTV.refreshDynamicFont()
         }
     }
 
-    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-        return true
-    }
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool { true }
 }
 
 // MARK: - HCKeyboardListenerDelegate
 extension HCChatViewController: HCKeyboardListenerDelegate {
     func keyboardListener(_ listener: HCKeyboardListener, willShowWith model: HCKeyboardListener.Model) {
-        guard !isImageSheetPresent else {return}
+        guard !isImageSheetPresent else { return }
         mainSheetBottomConstraint.constant = -model.frame.height
         UIView.animate(withDuration: model.duration, delay: 0, options: model.animationOptions) {
             self.view.layoutIfNeeded()
@@ -378,7 +409,7 @@ extension HCChatViewController: HCKeyboardListenerDelegate {
     }
 
     func keyboardListener(_ listener: HCKeyboardListener, willHideWith model: HCKeyboardListener.Model) {
-        guard !isImageSheetPresent else {return}
+        guard !isImageSheetPresent else { return }
         mainSheetBottomConstraint.constant = 0
         UIView.animate(withDuration: model.duration, delay: 0, options: model.animationOptions) {
             self.view.layoutIfNeeded()
@@ -407,5 +438,5 @@ extension HCChatViewController: UICollectionViewDataSource, UICollectionViewDele
         cell.configure(title: "Some Text", subtitle: "Some more text")
         return cell
     }
-
 }
+

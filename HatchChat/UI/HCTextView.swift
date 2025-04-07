@@ -17,7 +17,7 @@ class HCTextView: UITextView {
     private let availableSizes: [CGFloat] = [14, 16, 18]
     private var currentSizeIndex: Int = 2 // Start at 18pt (the largest)
     private var debounceTimer: Timer?
-    private let debounceInterval: TimeInterval = 0.2
+    private let debounceInterval: TimeInterval = 0.1
 
     /// The initial placeholder text
     var placeholder: String

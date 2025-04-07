@@ -57,11 +57,6 @@ class HCChipCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        contentView.layer.cornerRadius = contentView.bounds.height * 0.5
-    }
-
     func configure(title: String, subtitle: String) {
         titleLabel.text = title
         subtitleLabel.text = subtitle
