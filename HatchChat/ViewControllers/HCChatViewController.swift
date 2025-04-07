@@ -477,6 +477,7 @@ extension HCChatViewController: UICollectionViewDataSource, UICollectionViewDele
 
         chatTextView.text = (chatTextView.text ?? "") + testSnippet
         chatTextView.refreshDynamicFont()
+        textViewDidChange(chatTextView)
     }
 
 }
