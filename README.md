@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Assets/Logo.png" alt="Hatchat Logo" width="120" style="border-radius: 30px;" />
+</p>
+
 # 🐣 Hatchat – iOS Design Engineer Assignment
 
 A UIKit-based messaging UI featuring dynamic interactions, smooth animations, and a polished experience—reminiscent of Slack or iMessage.
