@@ -25,7 +25,7 @@ class HCFullScreenTextViewController: UIViewController {
         view.addSubview(textView)
 
         let closeButton = UIButton(type: .system)
-        closeButton.setImage(UIImage(named: "expand")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        closeButton.setImage(UIImage(named: "HCExpand")?.withRenderingMode(.alwaysOriginal), for: .normal)
         closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(closeButton)

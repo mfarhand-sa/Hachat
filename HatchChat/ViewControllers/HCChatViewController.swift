@@ -14,6 +14,8 @@ class HCChatViewController: UIViewController {
     // MARK: - Constraints / State
     private var mainSheetHeightConstraint: NSLayoutConstraint!
     private var mainSheetBottomConstraint: NSLayoutConstraint!
+    private var chatTextViewBottomToPreviewConstraint: NSLayoutConstraint!
+    private var chatTextViewBottomToButtonsConstraint: NSLayoutConstraint!
     private var isImageSheetPresent = false
     private let keyboardListener = HCKeyboardListener()
     private var initialBottomConstant: CGFloat = 0
@@ -48,7 +50,7 @@ class HCChatViewController: UIViewController {
     }()
 
     private lazy var chatTextView: HCTextView = {
-        let tv = HCTextView(frame: .zero, fixedHeight: 100, placeholder: "Start typing...")
+        let tv = HCTextView(frame: .zero, placeholder: "Start typing...")
         return tv
     }()
 
@@ -92,8 +94,8 @@ class HCChatViewController: UIViewController {
         setupMainSheet()
         setupChipsCollection()
         setupTextView()
-        setupPreviewContainer()
         setupButtons()
+        setupPreviewContainer()
         setupPanGesture()
 
         // Keep your existing lines for hooking up the chips
@@ -127,13 +129,14 @@ class HCChatViewController: UIViewController {
 
     private func setupMainSheet() {
         mainSheetView.backgroundColor = .HCTextViewBackground
-        mainSheetView.layer.cornerRadius = 16
+        mainSheetView.layer.cornerRadius = Constants.CornerRaduce.generalRaduce
         mainSheetView.layer.masksToBounds = false
+        mainSheetView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         mainSheetView.translatesAutoresizingMaskIntoConstraints = false
         mainSheetView.layer.shadowColor = UIColor.black.cgColor
-        mainSheetView.layer.shadowOpacity = 0.1
-        mainSheetView.layer.shadowOffset = CGSize(width: 0, height: -3)
-        mainSheetView.layer.shadowRadius = 6
+        mainSheetView.layer.shadowOpacity = Constants.Shadow.shadowOpacity
+        mainSheetView.layer.shadowOffset = Constants.Shadow.shadowOffset
+        mainSheetView.layer.shadowRadius = Constants.Shadow.shadowRadius
         view.addSubview(mainSheetView)
 
         mainSheetHeightConstraint = mainSheetView.heightAnchor.constraint(equalToConstant: mainSheetInitialHeight)
@@ -165,10 +168,13 @@ class HCChatViewController: UIViewController {
         chatTextView.delegate = self
         chatTextView.translatesAutoresizingMaskIntoConstraints = false
         mainSheetView.addSubview(chatTextView)
+        chatTextViewBottomToPreviewConstraint = chatTextView.bottomAnchor.constraint(equalTo: previewContainer.topAnchor, constant: -8)
+        chatTextViewBottomToButtonsConstraint = chatTextView.bottomAnchor.constraint(equalTo: mainSheetView.safeAreaLayoutGuide.bottomAnchor, constant: -60)
         NSLayoutConstraint.activate([
             chatTextView.topAnchor.constraint(equalTo: mainSheetView.topAnchor, constant: 8),
-            chatTextView.leadingAnchor.constraint(equalTo: mainSheetView.leadingAnchor, constant: 16),
+            chatTextView.leadingAnchor.constraint(equalTo: mainSheetView.leadingAnchor, constant: Constants.Padding.globalLeadingPadding),
             chatTextView.trailingAnchor.constraint(equalTo: mainSheetView.trailingAnchor, constant: -60),
+            chatTextViewBottomToButtonsConstraint
         ])
     }
 
@@ -182,17 +188,17 @@ class HCChatViewController: UIViewController {
         previewImageView.translatesAutoresizingMaskIntoConstraints = false
         previewContainer.addSubview(previewImageView)
 
-        removePreviewButton.setImage(UIImage(named: "remove")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        removePreviewButton.setImage(UIImage(named: "HCRemove")?.withRenderingMode(.alwaysOriginal), for: .normal)
         removePreviewButton.setTitleColor(.label, for: .normal)
         removePreviewButton.addTarget(self, action: #selector(removePreviewTapped), for: .touchUpInside)
         removePreviewButton.translatesAutoresizingMaskIntoConstraints = false
         previewContainer.addSubview(removePreviewButton)
 
         NSLayoutConstraint.activate([
-            previewContainer.topAnchor.constraint(equalTo: chatTextView.bottomAnchor, constant: 8),
-            previewContainer.leadingAnchor.constraint(equalTo: mainSheetView.leadingAnchor, constant: 16),
-            previewContainer.trailingAnchor.constraint(equalTo: mainSheetView.trailingAnchor, constant: -16),
+            previewContainer.leadingAnchor.constraint(equalTo: mainSheetView.leadingAnchor, constant: Constants.Padding.globalLeadingPadding),
+            previewContainer.trailingAnchor.constraint(equalTo: mainSheetView.trailingAnchor, constant: Constants.Padding.globalTrailingPadding),
             previewContainer.heightAnchor.constraint(equalToConstant: 50),
+            previewImageView.bottomAnchor.constraint(equalTo: imageButton.topAnchor,constant: -10),
 
             previewImageView.topAnchor.constraint(equalTo: previewContainer.topAnchor),
             previewImageView.bottomAnchor.constraint(equalTo: previewContainer.bottomAnchor),
@@ -209,18 +215,18 @@ class HCChatViewController: UIViewController {
     }
 
     private func setupButtons() {
-        expandButton.setImage(UIImage(named: "expand")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        expandButton.setImage(UIImage(named: "HCExpand")?.withRenderingMode(.alwaysOriginal), for: .normal)
         expandButton.translatesAutoresizingMaskIntoConstraints = false
         expandButton.addTarget(self, action: #selector(expandButtonTapped), for: .touchUpInside)
         expandButton.isHidden = true
         mainSheetView.addSubview(expandButton)
 
-        imageButton.setImage(UIImage(named: "image")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        imageButton.setImage(UIImage(named: "HCImage")?.withRenderingMode(.alwaysOriginal), for: .normal)
         imageButton.translatesAutoresizingMaskIntoConstraints = false
         imageButton.addTarget(self, action: #selector(imageButtonTapped), for: .touchUpInside)
         mainSheetView.addSubview(imageButton)
 
-        sendButton.setImage(UIImage(named: "send")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        sendButton.setImage(UIImage(named: "HCSend")?.withRenderingMode(.alwaysOriginal), for: .normal)
         sendButton.translatesAutoresizingMaskIntoConstraints = false
         sendButton.addTarget(self, action: #selector(sendButtonTapped), for: .touchUpInside)
         mainSheetView.addSubview(sendButton)
@@ -228,18 +234,18 @@ class HCChatViewController: UIViewController {
         NSLayoutConstraint.activate([
             expandButton.topAnchor.constraint(equalTo: chatTextView.topAnchor),
             expandButton.leadingAnchor.constraint(equalTo: chatTextView.trailingAnchor, constant: 4),
-            expandButton.widthAnchor.constraint(equalToConstant: 32),
-            expandButton.heightAnchor.constraint(equalToConstant: 32),
+            expandButton.widthAnchor.constraint(equalToConstant: Constants.ButtonSize.width),
+            expandButton.heightAnchor.constraint(equalToConstant: Constants.ButtonSize.height),
 
             imageButton.bottomAnchor.constraint(equalTo: mainSheetView.safeAreaLayoutGuide.bottomAnchor, constant: -8),
             imageButton.leadingAnchor.constraint(equalTo: mainSheetView.leadingAnchor, constant: 32),
-            imageButton.widthAnchor.constraint(equalToConstant: 35),
-            imageButton.heightAnchor.constraint(equalToConstant: 35),
+            imageButton.widthAnchor.constraint(equalToConstant: Constants.ButtonSize.width),
+            imageButton.heightAnchor.constraint(equalToConstant: Constants.ButtonSize.height),
 
             sendButton.centerYAnchor.constraint(equalTo: imageButton.centerYAnchor),
             sendButton.trailingAnchor.constraint(equalTo: mainSheetView.trailingAnchor, constant: -32),
-            sendButton.widthAnchor.constraint(equalToConstant: 35),
-            sendButton.heightAnchor.constraint(equalToConstant: 35),
+            sendButton.widthAnchor.constraint(equalToConstant: Constants.ButtonSize.width),
+            sendButton.heightAnchor.constraint(equalToConstant: Constants.ButtonSize.height),
         ])
     }
 
@@ -251,9 +257,9 @@ class HCChatViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func removePreviewTapped() {
-        previewContainer.isHidden = true
         previewImageView.image = nil
         previewImageView.backgroundColor = .clear
+        hidePreview()
     }
 
     @objc private func sendButtonTapped() {
@@ -273,7 +279,7 @@ class HCChatViewController: UIViewController {
             shouldExtendBackground: true,
             setIntrinsicHeightOnNavigationControllers: true,
             useFullScreenMode: false,
-            shrinkPresentingViewController: false,
+            shrinkPresentingViewController: true,
             useInlineMode: false,
             horizontalPadding: 0,
             maxWidth: nil
@@ -286,6 +292,7 @@ class HCChatViewController: UIViewController {
             options: options
         )
         sheetController.minimumSpaceAbovePullBar = 44
+        sheetController.gripColor = .label
 
         sheetController.didDismiss = { _ in
             self.isImageSheetPresent = false
@@ -321,6 +328,7 @@ class HCChatViewController: UIViewController {
             sizes: [.fullscreen],
             options: options
         )
+        sheetController.gripColor = .label
         sheetController.minimumSpaceAbovePullBar = 44
         sheetController.modalTransitionStyle = .flipHorizontal
         present(sheetController, animated: true)
@@ -377,12 +385,35 @@ class HCChatViewController: UIViewController {
     }
         
     private func reloadButtonImages() {
-        expandButton.setImage(UIImage(named: "expand")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        sendButton.setImage(UIImage(named: "send")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        imageButton.setImage(UIImage(named: "image")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        removePreviewButton.setImage(UIImage(named: "remove")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        expandButton.setImage(UIImage(named: "HXExpand")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        sendButton.setImage(UIImage(named: "HCSend")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        imageButton.setImage(UIImage(named: "HCImage")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        removePreviewButton.setImage(UIImage(named: "HCRemove")?.withRenderingMode(.alwaysOriginal), for: .normal)
     }
     
+    func showPreview() {
+        previewContainer.isHidden = false
+
+        chatTextViewBottomToButtonsConstraint.isActive = false
+        chatTextViewBottomToPreviewConstraint.isActive = true
+
+        mainSheetHeightConstraint.constant = mainSheetInitialHeight + 60
+        UIView.animate(withDuration: 0.25) {
+            self.view.layoutIfNeeded()
+        }
+    }
+
+    func hidePreview() {
+        previewContainer.isHidden = true
+
+        chatTextViewBottomToPreviewConstraint.isActive = false
+        chatTextViewBottomToButtonsConstraint.isActive = true
+
+        mainSheetHeightConstraint.constant = mainSheetInitialHeight
+        UIView.animate(withDuration: 0.25) {
+            self.view.layoutIfNeeded()
+        }
+    }
     
 }
 
@@ -420,9 +451,9 @@ extension HCChatViewController: HCKeyboardListenerDelegate {
 // MARK: - TilePickerDelegate
 extension HCChatViewController: TilePickerDelegate {
     func TilePickerViewController(_ picker: HCTilePickerViewController, didSelectColor color: UIColor) {
-        previewContainer.isHidden = false
         previewImageView.backgroundColor = color
         previewImageView.image = nil
+        showPreview()
     }
 }
 
@@ -438,5 +469,15 @@ extension HCChatViewController: UICollectionViewDataSource, UICollectionViewDele
         cell.configure(title: "Some Text", subtitle: "Some more text")
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard indexPath.item == 0 else { return }
+
+        let testSnippet = "This is a sample sentence meant to test"
+
+        chatTextView.text = (chatTextView.text ?? "") + testSnippet
+        chatTextView.refreshDynamicFont()
+    }
+
 }
 

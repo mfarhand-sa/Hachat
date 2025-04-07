@@ -14,11 +14,11 @@ struct Constants {
     
     
     struct Padding {
-        static let globalPadding: CGFloat = 48.0
-        static let globalLeadingPadding: CGFloat = 24.0
-        static let globalTrailingPadding: CGFloat = -24.0
-        static let globalTopPadding: CGFloat = 24.0
-        static let globalBottomPadding: CGFloat = -24.0
+        static let globalPadding: CGFloat = 20.0
+        static let globalLeadingPadding: CGFloat = 16.0
+        static let globalTrailingPadding: CGFloat = -16.0
+        static let globalTopPadding: CGFloat = 16.0
+        static let globalBottomPadding: CGFloat = -16.0
 
 
     }
@@ -48,6 +48,17 @@ struct Constants {
         }
     }
     
+    struct ButtonSize {
+        
+        static var width: CGFloat {
+            return 35.0
+        }
+        
+        static var height: CGFloat {
+            return 35.0
+        }
+    }
+    
     struct Shadow {
         static var shadowOpacity: Float {
             return 0.1
@@ -62,7 +73,7 @@ struct Constants {
         }
         
         static var shadowRadius: CGFloat {
-            return 4.0
+            return 6.0
         }
         
         static var buttonShadowRadius: CGFloat {
@@ -70,7 +81,7 @@ struct Constants {
         }
         
         static var shadowOffset: CGSize {
-            CGSize(width: 0, height: 0)
+            CGSize(width: 0, height: -3)
         }
         
         static var shadowColor: CGColor {

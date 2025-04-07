@@ -13,46 +13,34 @@ class HCTextView: UITextView {
 
     public var placeholderLabel = UILabel()
     private var fixedHeightConstraint: NSLayoutConstraint?
-
     private let availableSizes: [CGFloat] = [14, 16, 18]
-    private var currentSizeIndex: Int = 2 // Start at 18pt (the largest)
+    private var currentSizeIndex: Int = 2
     private var debounceTimer: Timer?
-    private let debounceInterval: TimeInterval = 0.1
-
-    /// The initial placeholder text
+    private let debounceInterval: TimeInterval = 0.15
     var placeholder: String
 
-    init(frame: CGRect, fixedHeight: CGFloat, placeholder: String) {
+    // Removed the fixedHeight parameter
+    init(frame: CGRect, placeholder: String) {
         self.placeholder = placeholder
         super.init(frame: frame, textContainer: nil)
+        translatesAutoresizingMaskIntoConstraints = false
 
         placeholderLabel.alpha = 0.4
-        // 1) Fix the height via an internal constraint
-        translatesAutoresizingMaskIntoConstraints = false
-        fixedHeightConstraint = heightAnchor.constraint(equalToConstant: fixedHeight)
-        fixedHeightConstraint?.isActive = true
-
-        // 2) Setup the placeholder label
         placeholderLabel.text = placeholder
         placeholderLabel.font = .CDFontRegular(size: 18)
         placeholderLabel.textColor = .label
         placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
-
         addSubview(placeholderLabel)
 
         NSLayoutConstraint.activate([
             placeholderLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             placeholderLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 6),
-            // Right anchor just so it doesn't overflow:
             placeholderLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -4),
         ])
 
-        // 3) Configure self
         isScrollEnabled = false
-        self.font = .CDFontRegular(size: 18)
+        font = .CDFontRegular(size: 18)
         textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 8, right: 4)
-
-        // Hide placeholder if user had a starting text
         updatePlaceholderVisibility()
     }
 
@@ -60,7 +48,6 @@ class HCTextView: UITextView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// Call this whenever text changes to re-check dynamic font & placeholder
     func refreshDynamicFont() {
         updatePlaceholderVisibility()
 
@@ -79,15 +66,26 @@ class HCTextView: UITextView {
         let totalHeight = bounds.height
         let neededHeight = sizeThatFits(CGSize(width: bounds.width, height: .greatestFiniteMagnitude)).height
         let ratio = neededHeight / totalHeight
-        let indexAt18 = 2, indexAt16 = 1, indexAt14 = 0
+        let indexAt14 = 0
+        let indexAt16 = 1
+        let indexAt18 = 2
 
         if ratio >= (2.0 / 3.0) {
-            if currentSizeIndex == indexAt18 { currentSizeIndex = indexAt16 }
-            else if currentSizeIndex == indexAt16 { currentSizeIndex = indexAt14 }
+            if currentSizeIndex == indexAt18 {
+                currentSizeIndex = indexAt16
+            } else if currentSizeIndex == indexAt16 {
+                currentSizeIndex = indexAt14
+            }
         } else if ratio <= 0.5 {
-            if currentSizeIndex == indexAt14 { currentSizeIndex = indexAt16 }
-            else if currentSizeIndex == indexAt16 { currentSizeIndex = indexAt18 }
+            if currentSizeIndex == indexAt14 {
+                currentSizeIndex = indexAt16
+            } else if currentSizeIndex == indexAt16 {
+                currentSizeIndex = indexAt18
+            }
         }
+
+
+
 
         UIView.animate(withDuration: 0.2) {
             self.font = UIFont.CDFontRegular(size: self.availableSizes[self.currentSizeIndex])
@@ -100,7 +98,6 @@ class HCTextView: UITextView {
             self.layoutIfNeeded()
         }
 
-        // Re-set selection and content offset so the cursor remains visible
         if let newPosition = self.position(from: oldRange.start, offset: 0),
            let newRange = self.textRange(from: newPosition, to: newPosition) {
             self.selectedTextRange = newRange
@@ -108,8 +105,6 @@ class HCTextView: UITextView {
         self.setContentOffset(oldOffset, animated: false)
     }
 
-
-    /// Show/hide placeholder label
     private func updatePlaceholderVisibility() {
         if text.isEmpty && !isFirstResponder {
             placeholderLabel.alpha = 0.4
